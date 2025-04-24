@@ -22,6 +22,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 const formSchema = z.object({
   title: z
     .string()
@@ -34,6 +36,8 @@ const formSchema = z.object({
 });
 
 const CreateIssue = () => {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,10 +46,13 @@ const CreateIssue = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await axios.post("/api/issue", values);
+      router.push("/issues");
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
