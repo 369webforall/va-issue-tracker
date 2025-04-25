@@ -1,14 +1,51 @@
 import Link from "next/link";
 import React from "react";
 import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
-const IssuePage = () => {
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+const IssuePage = async () => {
+  const issues = await prisma.issue.findMany();
+  if (!issues) notFound();
   return (
-    <div className="flex items-center justify-between mt-4">
+    <div className="mt-4">
+      <Link
+        href="/issues/create"
+        className={`${buttonVariants({ variant: "secondary" })} mb-4`}
+      >
+        Create Issue
+      </Link>
       <h1>List of Issues</h1>
-      <Button>
-        <Link href="/issues/create">Create Issue</Link>
-      </Button>
+
+      <div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>IssueDate</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {issues.map((issue) => (
+              <TableRow key={issue.id}>
+                <TableCell>
+                  <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
+                </TableCell>
+                <TableCell>{issue.status}</TableCell>
+                <TableCell>{issue.createdAt.toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

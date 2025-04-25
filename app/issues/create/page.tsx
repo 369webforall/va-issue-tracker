@@ -57,6 +57,11 @@ const CreateIssue = () => {
 
   return (
     <div className="mt-4 max-w-2xl mx-auto">
+      {false && (
+        <div>
+          <h2>Error message</h2>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Create New Issue</CardTitle>
