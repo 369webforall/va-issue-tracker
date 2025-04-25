@@ -11,6 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import IssueStatusBadge from "@/components/general/IssueStatusBadge";
+
 const IssuePage = async () => {
   const issues = await prisma.issue.findMany();
   if (!issues) notFound();
@@ -39,7 +42,9 @@ const IssuePage = async () => {
                 <TableCell>
                   <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
                 </TableCell>
-                <TableCell>{issue.status}</TableCell>
+                <TableCell>
+                  <IssueStatusBadge status={issue.status} />
+                </TableCell>
                 <TableCell>{issue.createdAt.toLocaleString()}</TableCell>
               </TableRow>
             ))}
