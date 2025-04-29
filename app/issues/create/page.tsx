@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+
 const formSchema = z.object({
   title: z
     .string()
@@ -37,6 +38,7 @@ const formSchema = z.object({
 
 const CreateIssue = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,9 +50,11 @@ const CreateIssue = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setLoading(true);
       await axios.post("/api/issue", values);
       router.push("/issues");
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   }
@@ -102,7 +106,9 @@ const CreateIssue = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Submitting" : "Submit"}
+              </Button>
             </form>
           </Form>
         </CardContent>
