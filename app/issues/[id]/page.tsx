@@ -1,6 +1,7 @@
 import React from "react";
 import { prisma } from "@/lib/prisma";
 import IssueDetail from "../_components/IssueDetail";
+
 // Fetch issue from database
 async function getIssue(id: string) {
   const issue = await prisma.issue.findUnique({

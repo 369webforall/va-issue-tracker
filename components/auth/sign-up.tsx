@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
-import CardWrapper from "./card-wrapper";
-import FormError from "./form-error";
-import FormSuccess from "./form-success";
+import CardWrapper from "../auth/card-wrapper";
+import FormError from "../auth/form-error";
+
 import { useAuthState } from "@/hooks/useAuthState";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   Form,
@@ -14,24 +15,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { SignupSchema } from "./signup-schema";
+import { SignupSchema } from "../auth/signup-schema";
 import { signUp } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const SignUp = () => {
   const router = useRouter();
-  const {
-    error,
-    success,
-    loading,
-    setLoading,
-    setError,
-    setSuccess,
-    resetState,
-  } = useAuthState();
+  const { error, loading, setLoading, setError, resetState } = useAuthState();
 
   const form = useForm<z.infer<typeof SignupSchema>>({
     resolver: zodResolver(SignupSchema),
@@ -59,7 +52,9 @@ const SignUp = () => {
             setLoading(true);
           },
           onSuccess: () => {
-            setSuccess("User has been created");
+            toast("Account created", {
+              description: "Check your email for verification link.",
+            });
             router.replace("/");
           },
           onError: (ctx) => {
@@ -69,7 +64,7 @@ const SignUp = () => {
       );
     } catch (error) {
       console.error(error);
-      setError("Something went wrong");
+      toast("Something went wrong");
     }
   };
 
@@ -138,7 +133,7 @@ const SignUp = () => {
             )}
           />
           <FormError message={error} />
-          <FormSuccess message={success} />
+
           <Button disabled={loading} type="submit" className="w-full">
             Submit
           </Button>

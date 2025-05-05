@@ -1,7 +1,13 @@
-import React from "react";
 import SignIn from "@/components/auth/sign-in";
-const SignInPage = () => {
-  return <SignIn />;
+
+import React from "react";
+
+const SignupPage = () => {
+  return (
+    <div className="my-4 w-full flex justify-center">
+      <SignIn />
+    </div>
+  );
 };
 
-export default SignInPage;
+export default SignupPage;
