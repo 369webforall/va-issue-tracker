@@ -1,19 +1,31 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-
+import { useRouter } from "next/navigation";
+import axios from "axios";
 interface Props {
   issueId: string;
 }
 
 export default function IssueDeleteButton({ issueId }: Props) {
+  const router = useRouter();
   const handleDelete = async () => {
-    // TODO: Add server action or API call to delete the issue
-    console.log("Delete issue", issueId);
+    try {
+      await axios.delete(`/api/issue/${issueId}`);
+      router.push("/issues");
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <Button variant="destructive" size="sm" onClick={handleDelete}>
+    <Button
+      variant="destructive"
+      size="lg"
+      className="cursor-pointer"
+      onClick={handleDelete}
+    >
       Delete
     </Button>
   );

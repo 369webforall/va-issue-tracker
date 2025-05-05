@@ -10,7 +10,7 @@ interface Props {
 export default function IssueEditButton({ issueId }: Props) {
   return (
     <Link href={`/issues/${issueId}/edit`}>
-      <Button variant="default" size="sm">
+      <Button variant="default" size="lg" className="cursor-pointer">
         Update
       </Button>
     </Link>
