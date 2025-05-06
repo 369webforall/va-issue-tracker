@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-
+import React, { useState } from "react";
+import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import {
   Select,
@@ -9,9 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User } from "@/lib/generated/prisma";
+import { Issue, User } from "@/lib/generated/prisma";
 
-const AssigneeSelect = () => {
+const AssigneeSelect = ({ issue }: { issue: Issue }) => {
+  const [selectedUserId, setSelectedUserId] = useState(issue.userId || "");
   const { data, isLoading, error } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
@@ -22,14 +23,25 @@ const AssigneeSelect = () => {
     staleTime: 60 * 1000, // data is cached till 60 seconds
     retry: 3,
   });
+  const handleValueChange = async (userId: string) => {
+    try {
+      await axios.patch(`/api/issue/${issue.id}`, {
+        userId: userId === "unassigned" ? null : userId,
+      });
+      setSelectedUserId(userId);
+    } catch (err) {
+      console.error("Failed to update userId", err);
+    }
+  };
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error loading users</p>;
   return (
-    <Select>
+    <Select value={selectedUserId} onValueChange={handleValueChange}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="User" />
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value="unassigned">Unassigned</SelectItem>
         {data?.map((user: User) => (
           <SelectItem key={user.id} value={user.id}>
             {user.name}

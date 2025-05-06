@@ -28,7 +28,7 @@ export async function PATCH(
   const { id } = await params;
   const issue = await prisma.issue.findUnique({ where: { id } });
   if (!issue) {
-    return NextResponse.json({ error: "No issue found" }, { status: 404 });
+    return NextResponse.json({ error: "No issue found" }, { status: 400 });
   }
 
   const body = await request.json();
