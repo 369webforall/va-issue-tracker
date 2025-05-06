@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
     data: {
       title: validation.data.title,
       description: validation.data.description,
-      userId,
     },
   });
 
