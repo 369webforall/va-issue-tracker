@@ -15,6 +15,10 @@ import {
 import IssueStatusBadge from "@/components/general/IssueStatusBadge";
 import IssueAction from "./IssueAction";
 import { Status } from "@/lib/generated/prisma";
+import { ArrowDown, ArrowUp } from "lucide-react";
+
+// Issue Page
+
 const IssuePage = async ({
   searchParams,
 }: {
@@ -22,16 +26,52 @@ const IssuePage = async ({
 }) => {
   const params = await searchParams;
   const statusParam = params.status;
+
+  const sortBy =
+    typeof params.sortBy === "string" ? params.sortBy : "createdAt";
+  const sortOrder =
+    typeof params.sortOrder === "string" ? params.sortOrder : "desc";
   const validStatuses: Status[] = ["OPEN", "IN_PROGRESS", "CLOSED"];
   const filterStatus = validStatuses.includes(statusParam as Status)
     ? (statusParam as Status)
     : undefined;
 
+  const orderBy: any = {};
+  if (sortBy === "title" || sortBy === "status" || sortBy === "createdAt") {
+    orderBy[sortBy] = sortOrder === "asc" ? "asc" : "desc";
+  } else {
+    orderBy["createdAt"] = "desc";
+  }
+
   const issues = await prisma.issue.findMany({
     where: { status: filterStatus },
+    orderBy,
   });
 
   if (!issues) notFound();
+
+  const getSortLink = (column: string) => {
+    const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc";
+    const order = sortBy === column ? newOrder : "asc";
+    const newParams = new URLSearchParams();
+    if (statusParam) {
+      newParams.set("status", statusParam as string);
+    }
+    newParams.set("sortBy", column);
+    newParams.set("sortOrder", order);
+    return `?${newParams.toString()}`;
+  };
+
+  const renderSortIndicator = (column: string) => {
+    if (sortBy !== column) return null;
+
+    return sortOrder === "asc" ? (
+      <ArrowUp className="inline ml-1 w-4 h-4" />
+    ) : (
+      <ArrowDown className="inline ml-1 w-4 h-4" />
+    );
+  };
+
   return (
     <div className="mt-4">
       <IssueAction />
@@ -41,9 +81,21 @@ const IssuePage = async ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>IssueDate</TableHead>
+              <TableHead>
+                <Link href={getSortLink("title")}>
+                  Title {renderSortIndicator("title")}
+                </Link>
+              </TableHead>
+              <TableHead>
+                <Link href={getSortLink("status")}>
+                  Status {renderSortIndicator("status")}
+                </Link>
+              </TableHead>
+              <TableHead>
+                <Link href={getSortLink("createdAt")}>
+                  IssueDate {renderSortIndicator("createdAt")}
+                </Link>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
