@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import { buttonVariants } from "@/components/ui/button";
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import {
@@ -13,18 +13,28 @@ import {
 } from "@/components/ui/table";
 
 import IssueStatusBadge from "@/components/general/IssueStatusBadge";
+import IssueAction from "./IssueAction";
+import { Status } from "@/lib/generated/prisma";
+const IssuePage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) => {
+  const params = await searchParams;
+  const statusParam = params.status;
+  const validStatuses: Status[] = ["OPEN", "IN_PROGRESS", "CLOSED"];
+  const filterStatus = validStatuses.includes(statusParam as Status)
+    ? (statusParam as Status)
+    : undefined;
 
-const IssuePage = async () => {
-  const issues = await prisma.issue.findMany();
+  const issues = await prisma.issue.findMany({
+    where: { status: filterStatus },
+  });
+
   if (!issues) notFound();
   return (
     <div className="mt-4">
-      <Link
-        href="/issues/create"
-        className={`${buttonVariants({ variant: "secondary" })} mb-4`}
-      >
-        Create Issue
-      </Link>
+      <IssueAction />
       <h1>List of Issues</h1>
 
       <div>
