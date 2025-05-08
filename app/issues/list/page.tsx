@@ -16,6 +16,7 @@ import IssueStatusBadge from "@/components/general/IssueStatusBadge";
 import IssueAction from "./IssueAction";
 import { Status } from "@/lib/generated/prisma";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import Pagination from "@/components/general/Pagination";
 
 // Issue Page
 
@@ -31,10 +32,14 @@ const IssuePage = async ({
     typeof params.sortBy === "string" ? params.sortBy : "createdAt";
   const sortOrder =
     typeof params.sortOrder === "string" ? params.sortOrder : "desc";
+  const page =
+    typeof params.page === "string" ? Number.parseInt(params.page) : 1;
   const validStatuses: Status[] = ["OPEN", "IN_PROGRESS", "CLOSED"];
   const filterStatus = validStatuses.includes(statusParam as Status)
     ? (statusParam as Status)
     : undefined;
+
+  const pageSize = 4;
 
   const orderBy: any = {};
   if (sortBy === "title" || sortBy === "status" || sortBy === "createdAt") {
@@ -46,6 +51,13 @@ const IssuePage = async ({
   const issues = await prisma.issue.findMany({
     where: { status: filterStatus },
     orderBy,
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+
+  // total nuber of issue
+  const issueCount = await prisma.issue.count({
+    where: { status: filterStatus },
   });
 
   if (!issues) notFound();
@@ -59,6 +71,7 @@ const IssuePage = async ({
     }
     newParams.set("sortBy", column);
     newParams.set("sortOrder", order);
+    newParams.set("page", page.toString());
     return `?${newParams.toString()}`;
   };
 
@@ -112,6 +125,13 @@ const IssuePage = async ({
             ))}
           </TableBody>
         </Table>
+      </div>
+      <div className="my-4">
+        <Pagination
+          itemCount={issueCount}
+          pageSize={pageSize}
+          currentPage={page}
+        />
       </div>
     </div>
   );
