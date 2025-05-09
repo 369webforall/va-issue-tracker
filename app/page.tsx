@@ -1,19 +1,33 @@
 import React from "react";
-import Pagination from "@/components/general/Pagination";
-const Home = async ({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) => {
-  const params = await searchParams;
-  const page =
-    typeof params.page === "string" ? Number.parseInt(params.page) : 1;
-
+import LatestIssue from "./LatestIssue";
+import IssueSummary from "./IssueSummary";
+import IssueChart from "./IssueChart";
+import { prisma } from "@/lib/prisma";
+const HomePage = async () => {
+  const open = await prisma.issue.count({
+    where: {
+      status: "OPEN",
+    },
+  });
+  const inprogress = await prisma.issue.count({
+    where: {
+      status: "IN_PROGRESS",
+    },
+  });
+  const closed = await prisma.issue.count({
+    where: {
+      status: "CLOSED",
+    },
+  });
   return (
-    <div>
-      <Pagination itemCount={100} pageSize={10} currentPage={page} />
+    <div className="my-6 flex items-center gap-6">
+      <div className="flex flex-col gap-6">
+        <IssueSummary open={open} inprogress={inprogress} closed={closed} />
+        <IssueChart open={open} inprogress={inprogress} closed={closed} />
+      </div>
+      <LatestIssue />
     </div>
   );
 };
 
-export default Home;
+export default HomePage;
